@@ -19,6 +19,8 @@ jobs:
       - run: sed -i '/AdWidget/d' lib/main.dart
       - run: sed -i '/_banner/d' lib/main.dart
       - run: sed -i '/BannerAd/d' lib/main.dart
+      - run: sed -i '/AdSize/d' lib/main.dart
+      - run: sed -i '/AdRequest/d' lib/main.dart
       - run: sed -i '/import.*google_mobile_ads/d' lib/main.dart
       - run: flutter pub get
       - run: flutter build apk --debug
