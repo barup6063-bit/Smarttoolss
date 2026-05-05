@@ -12,80 +12,34 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'SmartTools ID',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: HomePage(),
-    );
+  @override Widget build(BuildContext context) {
+    return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
   }
 }
 
 class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
+  @override _HomePageState createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
-  BannerAd? _bannerAd;
-  bool _isAdLoaded = false;
-
-  @override
-  void initState() {
+  BannerAd? _banner;
+  @override void initState() {
     super.initState();
-    _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111', // Test ID Android
-      size: AdSize.banner,
-      request: AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) => setState(() => _isAdLoaded = true),
-        onAdFailedToLoad: (ad, err) {
-          ad.dispose();
-        },
-      ),
-    )..load();
+    _banner = BannerAd(
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+      size: AdSize.banner, request: AdRequest(),
+      listener: BannerAdListener())..load();
   }
-
-  @override
-  void dispose() {
-    _bannerAd?.dispose();
-    super.dispose();
-  }
-
-  Widget menuButton(String title, Widget page) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
-        child: Text(title, style: TextStyle(fontSize: 18)),
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  @override Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("SmartTools ID")),
-      body: Column(
-        children: [
-          SizedBox(height: 20),
-          menuButton("Image Tools", ImageTool()),
-          menuButton("Text Tools", TextTool()),
-          menuButton("Video Tools", VideoTool()),
-          menuButton("PDF Tools", PdfTool()),
-          Spacer(),
-          if (_isAdLoaded && _bannerAd != null)
-            Container(
-              alignment: Alignment.center,
-              width: _bannerAd!.size.width.toDouble(),
-              height: _bannerAd!.size.height.toDouble(),
-              child: AdWidget(ad: _bannerAd!),
-            ),
-        ],
-      ),
+      body: Column(children: [
+        ElevatedButton(onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>ImageTool())), child: Text("Image Tools")),
+        ElevatedButton(onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>TextTool())), child: Text("Text Tools")),
+        ElevatedButton(onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>VideoTool())), child: Text("Video Tools")),
+        ElevatedButton(onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (_)=>PdfTool())), child: Text("PDF Tools")),
+        Spacer(),
+        if(_banner!=null) Container(height:50, child: AdWidget(ad:_banner!)),
+      ]),
     );
   }
 }
