@@ -12,7 +12,6 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - run: flutter create . --project-name smarttools --org id.smarttools --platforms android --overwrite
       - run: sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.22'/" android/build.gradle
       - run: flutter pub get
       - run: flutter build apk --debug
