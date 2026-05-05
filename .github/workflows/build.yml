@@ -11,10 +11,8 @@ jobs:
           distribution: 'zulu'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
-      - run: flutter create . --project-name smarttools
-      - run: sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.22'/" android/build.gradle
-      - run: sed -i "s/id 'com.android.application' version '.*'/id 'com.android.application' version '8.1.0'/" android/settings.gradle
+          flutter-version: '3.19.6'
+      - run: flutter create . --project-name smarttools --org com.smarttools
       - run: flutter pub get
       - run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
