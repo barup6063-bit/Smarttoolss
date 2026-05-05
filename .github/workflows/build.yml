@@ -16,6 +16,9 @@ jobs:
       - run: sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.22'/" android/build.gradle
       - run: sed -i '/google_mobile_ads/d' pubspec.yaml
       - run: sed -i '/MobileAds/d' lib/main.dart
+      - run: sed -i '/AdWidget/d' lib/main.dart
+      - run: sed -i '/_banner/d' lib/main.dart
+      - run: sed -i '/BannerAd/d' lib/main.dart
       - run: sed -i '/import.*google_mobile_ads/d' lib/main.dart
       - run: flutter pub get
       - run: flutter build apk --debug
