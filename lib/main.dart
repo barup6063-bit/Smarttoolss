@@ -13,7 +13,6 @@ void main() {
 
 class SmartToolsApp extends StatelessWidget {
   const SmartToolsApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,15 +21,47 @@ class SmartToolsApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const SplashScreen(), // Ganti home jadi SplashScreen
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+// SPLASH SCREEN BARU
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+  @override State<SplashScreen> createState() => _SplashScreenState();
+}
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.indigo,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.build_circle, size: 100, color: Colors.white),
+            const SizedBox(height: 20),
+            const Text('SmartTools', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 40),
+            const CircularProgressIndicator(color: Colors.white),
+          ],
+        ),
+      ),
     );
   }
 }
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +80,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildCard(BuildContext c, String title, IconData icon, Color color, Widget page) {
     return Card(
       elevation: 2,
@@ -69,42 +99,61 @@ class HomePage extends StatelessWidget {
   }
 }
 
+// KOMPRES FOTO DENGAN LOADING BAGUS
 class PhotoPage extends StatefulWidget {
   const PhotoPage({super.key});
   @override State<PhotoPage> createState() => _PhotoPageState();
 }
 class _PhotoPageState extends State<PhotoPage> {
+  bool isLoading = false;
   String status = 'Pilih foto untuk dikompres';
   Future<void> compress() async {
-    setState(() => status = 'Pilih foto...');
+    setState(() { isLoading = true; status = 'Pilih foto...'; });
     final res = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (res == null) return setState(() => status = 'Dibatalkan');
+    if (res == null) return setState(() { isLoading = false; status = 'Dibatalkan'; });
+    setState(() => status = 'Mengkompres...');
     final file = File(res.files.single.path!);
     final bytes = await file.readAsBytes();
     final image = img.decodeImage(bytes);
     if (image == null) return;
-    setState(() => status = 'Mengkompres...');
     final resized = img.copyResize(image, width: image.width > 1280? 1280 : image.width);
     final out = img.encodeJpg(resized, quality: 75);
     final dir = await getTemporaryDirectory();
     final outFile = File('${dir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg');
     await outFile.writeAsBytes(out);
     await Share.shareXFiles([XFile(outFile.path)], text: 'Hasil kompres SmartTools');
-    setState(() => status = 'Selesai! ${(out.length/1024).toStringAsFixed(1)} KB');
+    setState(() { isLoading = false; status = 'Selesai! ${(out.length/1024).toStringAsFixed(1)} KB'; });
   }
-  @override Widget build(BuildContext c) => Scaffold(appBar: AppBar(title: const Text('Kompres Foto')), body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [ElevatedButton.icon(onPressed: compress, icon: const Icon(Icons.compress), label: const Text('Pilih & Kompres')), const SizedBox(height:16), Text(status)])));
+  @override Widget build(BuildContext c) => Scaffold(
+    appBar: AppBar(title: const Text('Kompres Foto')), 
+    body: Center(
+      child: isLoading 
+        ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const CircularProgressIndicator(), 
+            const SizedBox(height: 16), 
+            Text(status)
+          ])
+        : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            ElevatedButton.icon(onPressed: compress, icon: const Icon(Icons.compress), label: const Text('Pilih & Kompres')), 
+            const SizedBox(height:16), 
+            Text(status)
+          ])
+    )
+  );
 }
 
+// PDF PAGE DENGAN LOADING BAGUS
 class PdfPage extends StatefulWidget {
   const PdfPage({super.key});
   @override State<PdfPage> createState() => _PdfPageState();
 }
 class _PdfPageState extends State<PdfPage> {
+  bool isLoading = false;
   String status = 'Pilih beberapa gambar';
   Future<void> imagesToPdf() async {
     final res = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: true);
     if (res == null) return;
-    setState(() => status = 'Membuat PDF...');
+    setState(() { isLoading = true; status = 'Membuat PDF...'; });
     final pdf = pw.Document();
     for (final f in res.files) {
       final bytes = await File(f.path!).readAsBytes();
@@ -114,9 +163,24 @@ class _PdfPageState extends State<PdfPage> {
     final out = File('${dir.path}/smarttools.pdf');
     await out.writeAsBytes(await pdf.save());
     await Share.shareXFiles([XFile(out.path)]);
-    setState(() => status = 'PDF jadi!');
+    setState(() { isLoading = false; status = 'PDF jadi!'; });
   }
-  @override Widget build(BuildContext c) => Scaffold(appBar: AppBar(title: const Text('Gambar ke PDF')), body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [ElevatedButton.icon(onPressed: imagesToPdf, icon: const Icon(Icons.image), label: const Text('Pilih Gambar')), const SizedBox(height:16), Text(status)])));
+  @override Widget build(BuildContext c) => Scaffold(
+    appBar: AppBar(title: const Text('Gambar ke PDF')), 
+    body: Center(
+      child: isLoading 
+        ? Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            const CircularProgressIndicator(), 
+            const SizedBox(height: 16), 
+            Text(status)
+          ])
+        : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            ElevatedButton.icon(onPressed: imagesToPdf, icon: const Icon(Icons.image), label: const Text('Pilih Gambar')), 
+            const SizedBox(height:16), 
+            Text(status)
+          ])
+    )
+  );
 }
 
 class TextPage extends StatefulWidget {
